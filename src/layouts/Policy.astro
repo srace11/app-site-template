@@ -1,6 +1,6 @@
 ---
 // Renders a markdown policy from src/policies/ with the app's name,
-// developer and contact email pulled from app.config.ts.
+// developer and privacy email pulled from app.config.ts.
 import Base from './Base.astro';
 import { app } from '../app.config';
 
@@ -35,7 +35,7 @@ const dateLabel = Number.isNaN(parsed.getTime())
     <h2>Contact</h2>
     <p>
       Questions about this {title.toLowerCase()}, or requests about your data, can be sent to
-      {' '}<a href={`mailto:${app.contactEmail}`}>{app.contactEmail}</a>. We aim to reply within 7 days.
+      {' '}<a href={`mailto:${app.privacyEmail}`}>{app.privacyEmail}</a>. We aim to reply within 7 days.
     </p>
   </article>
 </Base>

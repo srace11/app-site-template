@@ -7,13 +7,15 @@ import { app } from '../app.config';
     <h1>Support</h1>
     <p class="meta">We are happy to help with anything related to {app.name}.</p>
 
-    <div class="contact">
-      <div>
-        <strong>Email us</strong>
-        <p>Usually answered within 1 to 2 business days.</p>
+    {app.contactEmail && (
+      <div class="contact">
+        <div>
+          <strong>Email us</strong>
+          <p>Usually answered within 1 to 2 business days.</p>
+        </div>
+        <a class="button" href={`mailto:${app.contactEmail}?subject=${encodeURIComponent(`${app.name} support`)}`}>{app.contactEmail}</a>
       </div>
-      <a class="button" href={`mailto:${app.contactEmail}?subject=${encodeURIComponent(`${app.name} support`)}`}>{app.contactEmail}</a>
-    </div>
+    )}
 
     <h2>Frequently asked questions</h2>
     <div class="faq">

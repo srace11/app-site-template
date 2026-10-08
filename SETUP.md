@@ -1,6 +1,6 @@
 # App site template: setup guide
 
-This repo is the mini-site for one app, served at `appname.shaneracey.com`. It has four pages:
+This repo is the mini-site for one app, served at `appname.shaneracey.com`. It has these pages:
 
 | Page | URL | Used for |
 | --- | --- | --- |
@@ -8,21 +8,57 @@ This repo is the mini-site for one app, served at `appname.shaneracey.com`. It h
 | Privacy | `https://appname.shaneracey.com/privacy` | Privacy Policy URL (App Store Connect and Google Play) |
 | Terms | `https://appname.shaneracey.com/terms` | Terms of Use / EULA link |
 | Support | `https://appname.shaneracey.com/support` | Support URL (App Store Connect) |
+| Waitlist | `https://appname.shaneracey.com/waitlist` | Signups before launch (optional, see below) |
 
 ## Files you edit per app
 
 | File | What to change |
 | --- | --- |
-| `src/app.config.ts` | Name, tagline, URL, colors, contact email, store links, features, screenshots, FAQ |
+| `src/app.config.ts` | Name, tagline, URL, colors, main button, waitlist, every home page section, store links, support FAQ |
 | `src/policies/privacy.md` | The privacy policy. Replace every `TODO` truthfully. |
 | `src/policies/terms.md` | The terms. Replace every `TODO`. |
 | `public/icon.svg` | App icon (SVG or PNG; update `icon` in the config if you change the file name) |
-| `public/screenshots/` | Phone screenshots (update `screenshots` in the config) |
+| `public/about/` | Your photo for the About section (square) |
+| `public/screenshots/` | Phone screenshots (optional; list them in `screenshots` in the config) |
+| `wrangler.jsonc` | The Worker's `name` and the app's subdomain |
 | `public/og.png` | Link preview image. Regenerate with `npm run og` after editing the config. |
 
 The privacy and terms pages show a yellow "Draft" banner as long as the markdown file still contains the word `TODO`. Do not submit an app while that banner is visible.
 
 > **The policy text is a starting template, not legal advice.** Before every launch, check the privacy policy against what the app really collects: every SDK (analytics, crash reporting, ads, auth, payments), every permission, and every server call. It must match your App Store "App Privacy" answers and your Google Play "Data safety" form.
+
+## The home page
+
+One scroll, straight to the value: a dark hero band with one loud headline, one button and a video, then sections that each start with a small label and a big centred heading. Top to bottom, all set in `app.landing` in the config:
+
+| Section | Config | Header link |
+| --- | --- | --- |
+| Hero: label, headline (`tagline`), one sentence, button, video | `hero`, `tagline`, `cta` | |
+| How it works: numbered steps, then short facts | `how.steps`, `how.facts` | How it works |
+| Features | `features.items` | Features |
+| Screenshots | `screenshots` (top level) | |
+| Coming soon | `soon.items` | |
+| About you | `about` | |
+| Pricing cards | `pricing.plans` | Pricing |
+| FAQ | `faq.items` | FAQ |
+| Final call to action | `final` | |
+
+- **Empty sections disappear.** A section whose list is empty is hidden, along with its header link.
+- **Placeholders show as placeholders.** Any text starting with `[` (for example `'[Feature name]'`) is drawn in faded italics, so a new site is an obvious outline until it's filled in. Fill them with facts only; never invent numbers or features to make a section look complete.
+- **The main button** (`cta`) appears in the header, the hero, the pricing cards and the final section. Before launch it points at `/waitlist`. After launch, point it at the store link and add `stores` links (badges then show in the hero).
+- **Video:** put an MP4 in `public/` and set `hero.video` (for example `'/demo.mp4'`). Until then the hero shows a placeholder frame.
+- **Colors:** `colors.accent` fills buttons, `colors.accentText` is the text on them, `colors.accentDark` is used for labels on the hero and in dark mode, and `colors.hero` is the hero background (keep it dark).
+- **Fonts:** the template uses the system font. To use brand fonts, put `.woff2` files in `public/fonts/`, add `@font-face` rules at the top of `src/styles/global.css`, and set `--font-display` (headings), `--font` (text) and `--font-mono` (numbers). `statjump-site` does exactly this.
+
+## The waitlist (optional)
+
+The `/waitlist` page posts to the shared waitlist API at `api.shaneracey.com` (repo `srace11/waitlist-api`). It stores signups in Cloudflare D1, checks for bots with Turnstile and emails you on each new signup.
+
+1. In `waitlist-api`, add the app to `src/apps.config.ts` (its slug, `origin` = this site's URL, its questions), add the hostname to the Turnstile widget, and deploy. That repo's SETUP.md has the steps.
+2. Here, set `waitlist.app` to the same slug and keep `cta.href` as `'/waitlist'`.
+3. Build. The form reads its questions from the API at build time, so the API must already have the app. To build against a local copy of the API: `WAITLIST_API=http://localhost:8787 npm run build`.
+
+With `waitlist.app` empty, `/waitlist` just says the waitlist opens soon, and the site builds without contacting the API.
 
 ## Run it locally
 
@@ -35,7 +71,17 @@ npm run build     # outputs to dist/
 npm run preview   # serves dist/ locally
 ```
 
-## Deploy to Cloudflare Pages (first time for a new app)
+## Deploy as a Cloudflare Worker (recommended)
+
+This is how `statjump-site` is deployed. `wrangler.jsonc` builds the site, serves `dist/` and attaches the subdomain, creating its DNS record.
+
+1. In `wrangler.jsonc`, set `name` (for example `appname-site`) and the `routes` pattern (`appname.shaneracey.com`).
+2. Run `npx wrangler login` once, then `npm run deploy`.
+3. To redeploy on every push: Cloudflare dashboard > **Workers & Pages >** the Worker > **Settings > Build** > connect the GitHub repo. Leave the build settings at their defaults.
+
+If you rename the Worker in the dashboard, change `name` in `wrangler.jsonc` to match.
+
+## Or deploy to Cloudflare Pages
 
 1. Push the repo to GitHub (see the launch checklist below for creating it).
 2. In the Cloudflare dashboard go to **Workers & Pages > Create > Pages > Connect to Git**.
@@ -76,15 +122,15 @@ shaneracey.com's DNS is hosted on Cloudflare (nameservers `aspen` and `rocky`), 
 ## Launch checklist for a new app
 
 - [ ] **Copy the template.** On GitHub, open `srace11/app-site-template`, click **Use this template > Create a new repository** and name it `appname-site`. Clone it. (Or from the CLI: `gh repo create appname-site --template srace11/app-site-template --public --clone`.)
-- [ ] **Edit `src/app.config.ts`:** name, tagline, description, `url` (`https://appname.shaneracey.com`), colors, contact email, features, FAQ. Leave the store links empty until the app is approved.
+- [ ] **Edit `src/app.config.ts`:** name, tagline, description, `url` (`https://appname.shaneracey.com`), colors, `cta`, and every home page section. Replace every `[...]` placeholder with real facts, or empty the section to hide it. Leave the store links empty until the app is approved.
 - [ ] **Replace the images:** `public/icon.svg`, the screenshots, then run `npm run og` to rebuild the link preview image.
 - [ ] **Write the privacy policy** in `src/policies/privacy.md`. List every data type, SDK and permission truthfully, fill in the deletion instructions and set `effectiveDate`. No `TODO` left.
 - [ ] **Write the terms** in `src/policies/terms.md`. Fill in subscriptions (if any), governing law and `effectiveDate`. No `TODO` left.
 - [ ] **Answer the support FAQ** (account deletion, purchases) in the config.
 - [ ] **Build locally:** `npm run build` finishes with no errors and `npm run preview` shows no Draft banner.
 - [ ] **Commit and push** to `main`.
-- [ ] **Deploy** a new Cloudflare Pages project from the repo (steps above).
-- [ ] **Add the subdomain** `appname.shaneracey.com` (steps above) and confirm it is Active.
+- [ ] **Optional waitlist:** add the app to `waitlist-api`, deploy it, then set `waitlist.app` here (see The waitlist).
+- [ ] **Deploy** as a Worker (`wrangler.jsonc` name and route, then `npm run deploy`), or as a Pages project and add the subdomain (steps above). Confirm the subdomain loads.
 - [ ] **App Store Connect:**
   - App Information > **Privacy Policy URL**: `https://appname.shaneracey.com/privacy`
   - Version page > **Support URL**: `https://appname.shaneracey.com/support`

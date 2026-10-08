@@ -1,28 +1,86 @@
 ---
+// Home page: one scroll, straight to the value. Hero, video, how it works, features,
+// screenshots, coming soon, about, pricing, FAQ, final call to action.
+// Every section comes from app.landing in app.config.ts; a section with no items is hidden.
+// Text written as "[...]" renders in the placeholder style (see isPlaceholder).
 import Base from '../layouts/Base.astro';
 import StoreBadges from '../components/StoreBadges.astro';
-import { app } from '../app.config';
+import { app, isPlaceholder } from '../app.config';
+
+const { hero, how, features, soon, about, pricing, faq, final } = app.landing;
+const ph = (text: string) => ({ ph: isPlaceholder(text) });
+const hasStores = Boolean(app.stores.appStore || app.stores.googlePlay);
+const finalHeading = final.heading || app.tagline;
 ---
 <Base>
-  <section class="hero wrap">
-    <img class="hero-icon" src={app.icon} alt={`${app.name} icon`} width="96" height="96" />
-    <h1>{app.name}</h1>
-    <p class="tagline">{app.tagline}</p>
-    <StoreBadges appStore={app.stores.appStore} googlePlay={app.stores.googlePlay} />
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap hero-in">
+      {hero.eyebrow && <p class:list={['eyebrow on-band', ph(hero.eyebrow)]}>{hero.eyebrow}</p>}
+      <h1 class:list={['headline', ph(app.tagline)]}>{app.tagline}</h1>
+      <p class:list={['lead', ph(hero.lead)]}>{hero.lead}</p>
+      <a class="button" href={app.cta.href}>{app.cta.label}</a>
+      {app.cta.note && <p class="note">{app.cta.note}</p>}
+      {hasStores && <div class="hero-stores"><StoreBadges appStore={app.stores.appStore} googlePlay={app.stores.googlePlay} /></div>}
+
+      {hero.video ? (
+        <video class="video" src={hero.video} poster={hero.videoPoster || undefined} controls playsinline preload="metadata"></video>
+      ) : (
+        <div class="video ph-frame" role="img" aria-label="Video coming soon">
+          <span class="play" aria-hidden="true"></span>
+          <span class="ph">[How it works video]</span>
+        </div>
+      )}
+    </div>
   </section>
 
-  <section class="wrap features" aria-label="Features">
-    {app.features.map((f) => (
-      <article class="feature">
-        <div class="feature-icon" aria-hidden="true">{f.icon}</div>
-        <h2>{f.title}</h2>
-        <p>{f.body}</p>
-      </article>
-    ))}
-  </section>
+  <!-- How it works -->
+  {how.steps.length > 0 && (
+    <section id="how" class="section wrap">
+      <p class="eyebrow">{how.eyebrow}</p>
+      <h2 class:list={ph(how.heading)}>{how.heading}</h2>
+      <ol class="grid three">
+        {how.steps.map((s, i) => (
+          <li class="card">
+            <span class="num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class:list={ph(s.title)}>{s.title}</h3>
+            <p class:list={ph(s.body)}>{s.body}</p>
+          </li>
+        ))}
+      </ol>
+      {how.facts.length > 0 && (
+        <div class="grid three facts">
+          {how.facts.map((f) => (
+            <div class="fact">
+              <h3 class:list={ph(f.title)}>{f.title}</h3>
+              <p class:list={ph(f.body)}>{f.body}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  )}
 
+  <!-- Features -->
+  {features.items.length > 0 && (
+    <section id="features" class="section wrap">
+      <p class="eyebrow">{features.eyebrow}</p>
+      <h2 class:list={ph(features.heading)}>{features.heading}</h2>
+      {features.lead && <p class:list={['section-lead', ph(features.lead)]}>{features.lead}</p>}
+      <div class="grid four">
+        {features.items.map((f) => (
+          <div class="card small">
+            <h3 class:list={ph(f.title)}>{f.title}</h3>
+            <p class:list={ph(f.body)}>{f.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- Screenshots -->
   {app.screenshots.length > 0 && (
-    <section class="shots-section" aria-label="Screenshots">
+    <section class="section" aria-label="Screenshots">
       <div class="shots wrap">
         {app.screenshots.map((s) => (
           <img src={s.src} alt={s.alt} width="300" height="650" loading="lazy" decoding="async" />
@@ -31,36 +89,167 @@ import { app } from '../app.config';
     </section>
   )}
 
-  <section class="wrap cta">
-    <h2>Get {app.name}</h2>
-    <StoreBadges appStore={app.stores.appStore} googlePlay={app.stores.googlePlay} />
-    <p class="muted">Questions? <a href="/support">Visit support</a> or email <a href={`mailto:${app.contactEmail}`}>{app.contactEmail}</a>.</p>
+  <!-- Coming soon -->
+  {soon.items.length > 0 && (
+    <section id="soon" class="section wrap">
+      <p class="eyebrow">{soon.eyebrow}</p>
+      <h2>{soon.heading}</h2>
+      <div class="grid three">
+        {soon.items.map((f) => (
+          <div class="card outline">
+            <h3 class:list={ph(f.title)}>{f.title}</h3>
+            <p class:list={ph(f.body)}>{f.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- About -->
+  {about.paragraphs.length > 0 && (
+    <section id="about" class="section wrap">
+      <p class="eyebrow">{about.eyebrow}</p>
+      <h2>{about.heading}</h2>
+      <div class:list={['about card', { 'no-photo': !about.photo }]}>
+        {about.photo && <img src={about.photo} alt={about.photoAlt} width="160" height="160" loading="lazy" />}
+        <div>
+          {about.paragraphs.map((p) => <p class:list={ph(p)}>{p}</p>)}
+          <p><a href={app.hubUrl}>More of my apps</a></p>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Pricing -->
+  {pricing.plans.length > 0 && (
+    <section id="pricing" class="section wrap">
+      <p class="eyebrow">{pricing.eyebrow}</p>
+      <h2>{pricing.heading}</h2>
+      <div class="plans">
+        {pricing.plans.map((plan) => (
+          <div class:list={['card plan', { featured: plan.featured }]}>
+            <h3>{plan.name}</h3>
+            <p class="price"><span class:list={ph(plan.price)}>{plan.price}</span></p>
+            <ul>
+              {plan.items.map((item) => <li class:list={ph(item)}>{item}</li>)}
+            </ul>
+            <a class:list={['button', { outline: !plan.featured }]} href={app.cta.href}>{app.cta.label}</a>
+          </div>
+        ))}
+      </div>
+      {pricing.note && <p class="section-lead small">{pricing.note}</p>}
+    </section>
+  )}
+
+  <!-- FAQ -->
+  {faq.items.length > 0 && (
+    <section id="faq" class="section wrap narrow">
+      <p class="eyebrow">{faq.eyebrow}</p>
+      <h2>{faq.heading}</h2>
+      <div class="faq">
+        {faq.items.map((f) => (
+          <details>
+            <summary class:list={ph(f.q)}>{f.q}</summary>
+            <p class:list={ph(f.a)}>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- Final call to action -->
+  <section class="section wrap final">
+    <h2 class:list={['headline dark', ph(finalHeading)]}>{finalHeading}</h2>
+    {final.lead && <p class:list={['section-lead', ph(final.lead)]}>{final.lead}</p>}
+    <a class="button" href={app.cta.href}>{app.cta.label}</a>
   </section>
 </Base>
 
 <style>
-  .hero { text-align: center; padding: 72px 20px 56px; display: flex; flex-direction: column; align-items: center; }
-  .hero-icon { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 16px 40px -16px var(--accent); margin-bottom: 24px; }
-  .hero h1 { font-size: clamp(2.4rem, 9vw, 4rem); line-height: 1.05; letter-spacing: -.035em; margin: 0 0 14px; }
-  .tagline { font-size: clamp(1.1rem, 3.5vw, 1.35rem); color: var(--muted); max-width: 36rem; margin: 0 0 32px; }
-  .hero :global(.badges) { justify-content: center; }
+  /* Placeholders: visible on purpose, so nothing unfinished passes as real. */
+  .ph { font-style: italic; opacity: .7; }
+  .ph-frame { border: 2px dashed var(--line); }
 
-  .features { display: grid; gap: 16px; grid-template-columns: 1fr; }
-  @media (min-width: 720px) { .features { grid-template-columns: repeat(3, 1fr); } }
-  .feature { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
-  .feature-icon { font-size: 1.6rem; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 12px;
-    background: color-mix(in srgb, var(--accent) 14%, transparent); margin-bottom: 14px; }
-  .feature h2 { font-size: 1.1rem; margin: 0 0 6px; }
-  .feature p { margin: 0; color: var(--muted); }
+  .eyebrow { font-size: .78rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 10px; text-align: center; }
+  .eyebrow.on-band { color: var(--brand-dark); }
 
-  .shots-section { margin-top: 64px; }
+  .button { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 12px 28px;
+    background: var(--cta-bg); color: var(--cta-fg); border: 2px solid var(--cta-bg); border-radius: var(--radius);
+    font-weight: 600; font-size: 1.05rem; text-decoration: none; }
+  .button:hover { filter: brightness(1.06); }
+  .button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  .button.outline { background: transparent; color: var(--fg); border-color: var(--line); }
+
+  /* Hero: dark band, centred, one loud line. */
+  .hero { background: var(--band); color: #fff; }
+  .hero-in { padding: 72px 20px 64px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .headline { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.8rem, 10vw, 5rem);
+    line-height: .98; letter-spacing: -.02em; margin: 0 0 20px; max-width: 16ch; }
+  .lead { font-size: clamp(1.08rem, 3.2vw, 1.3rem); color: rgba(255, 255, 255, .82); max-width: 36rem; margin: 0 0 30px; }
+  .hero .button:focus-visible { outline-color: #fff; }
+  .note { font-size: .9rem; color: rgba(255, 255, 255, .62); margin: 12px 0 0; }
+  .hero-stores { margin-top: 20px; }
+  .hero-stores :global(.badges) { justify-content: center; }
+  .hero-stores :global(.badge.soon) { color: rgba(255, 255, 255, .7); }
+  .video { width: 100%; max-width: 860px; aspect-ratio: 16 / 9; margin-top: 48px; border-radius: 16px; background: #000; }
+  div.video { border-color: rgba(255, 255, 255, .25); background: rgba(255, 255, 255, .04);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+  .play { width: 64px; height: 64px; border-radius: 50%; background: var(--cta-bg); position: relative; }
+  .play::after { content: ''; position: absolute; left: 26px; top: 20px; border-left: 18px solid var(--cta-fg);
+    border-top: 12px solid transparent; border-bottom: 12px solid transparent; }
+
+  /* Sections: small label, big centred heading, content. */
+  .section { padding-top: 96px; }
+  .section > h2 { font-family: var(--font-display); font-weight: 700; text-align: center;
+    font-size: clamp(2rem, 6vw, 2.8rem); line-height: 1.08; letter-spacing: -.01em; margin: 0 0 14px; }
+  .section-lead { text-align: center; color: var(--muted); max-width: 36rem; margin: 0 auto 36px; font-size: 1.05rem; }
+  .section-lead.small { margin: 20px auto 0; font-size: .95rem; }
+  .section > h2 + :not(.section-lead) { margin-top: 36px; }
+  .narrow { max-width: 760px; }
+
+  .grid { display: grid; gap: 16px; list-style: none; padding: 0; margin: 0; }
+  @media (min-width: 760px) { .grid.three { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 640px) { .grid.four { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 960px) { .grid.four { grid-template-columns: repeat(4, 1fr); } }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+  .card.small { padding: 20px; }
+  .card.outline { background: transparent; }
+  .card h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; line-height: 1.2; margin: 0 0 6px; }
+  .card p { margin: 0; color: var(--muted); }
+  .num { display: block; font-family: var(--font-mono); font-weight: 700; font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; }
+
+  .facts { margin-top: 16px; }
+  .fact { border-top: 3px solid var(--cta-bg); padding: 18px 4px 0; }
+  .fact h3 { font-size: 1.05rem; margin: 0 0 4px; }
+  .fact p { margin: 0; color: var(--muted); }
+
   .shots { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 12px; }
   .shots img { flex: 0 0 auto; width: min(240px, 70vw); aspect-ratio: 300 / 650; object-fit: cover;
     border-radius: 24px; border: 1px solid var(--line); scroll-snap-align: start; }
   @media (min-width: 900px) { .shots { justify-content: center; } }
 
-  .cta { text-align: center; margin-top: 72px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
-  .cta h2 { font-size: 1.8rem; margin: 0; letter-spacing: -.02em; }
-  .cta :global(.badges) { justify-content: center; }
-  .muted { color: var(--muted); margin: 0; }
+  .about { display: grid; gap: 24px; align-items: center; max-width: 760px; margin: 0 auto; }
+  @media (min-width: 640px) { .about:not(.no-photo) { grid-template-columns: 160px 1fr; } }
+  .about img { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; }
+  .about p { color: var(--fg); margin: 0 0 12px; }
+  .about p:last-child { margin: 0; }
+
+  .plans { display: grid; gap: 16px; max-width: 760px; margin: 0 auto; }
+  @media (min-width: 640px) { .plans { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); } }
+  .plan { display: flex; flex-direction: column; gap: 14px; }
+  .plan.featured { border: 2px solid var(--cta-bg); }
+  .price { font-family: var(--font-mono); font-weight: 700; font-size: 1.8rem; margin: 0; }
+  .plan ul { margin: 0; padding-left: 20px; flex: 1; }
+  .plan li { margin: 4px 0; }
+
+  .faq { display: grid; gap: 10px; }
+  details { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 0 20px; }
+  summary { cursor: pointer; font-weight: 600; padding: 16px 0; }
+  summary::marker { color: var(--accent); }
+  details p { margin: 0 0 16px; color: var(--muted); }
+
+  .final { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .headline.dark { color: var(--fg); font-size: clamp(2.4rem, 8vw, 4rem); }
 </style>

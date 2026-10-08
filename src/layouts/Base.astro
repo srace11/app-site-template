@@ -14,12 +14,21 @@ const pageTitle = title ? `${title} | ${app.name}` : `${app.name}: ${app.tagline
 const path = Astro.url.pathname.replace(/(index)?\.html$/, '').replace(/(.)\/$/, '$1') || '/';
 const canonical = new URL(path, app.url).href;
 const ogImage = new URL(app.ogImage, app.url).href;
+// Section links on the home page, one per section that has content.
+// Support, privacy and terms live in the footer.
+const l = app.landing;
 const nav = [
-  { href: '/support', label: 'Support' },
-  { href: '/privacy', label: 'Privacy' },
-  { href: '/terms', label: 'Terms' },
-];
-const brandVars = `--brand:${app.colors.accent};--brand-dark:${app.colors.accentDark};--brand-text:${app.colors.accentText}`;
+  { href: '/#how', label: 'How it works', show: l.how.steps.length > 0 },
+  { href: '/#features', label: 'Features', show: l.features.items.length > 0 },
+  { href: '/#pricing', label: 'Pricing', show: l.pricing.plans.length > 0 },
+  { href: '/#faq', label: 'FAQ', show: l.faq.items.length > 0 },
+].filter((n) => n.show);
+const brandVars = [
+  `--brand:${app.colors.accent}`,
+  `--brand-dark:${app.colors.accentDark}`,
+  `--brand-text:${app.colors.accentText}`,
+  `--band:${app.colors.hero}`,
+].join(';');
 ---
 <!doctype html>
 <html lang="en" style={brandVars}>
@@ -55,10 +64,9 @@ const brandVars = `--brand:${app.colors.accent};--brand-dark:${app.colors.accent
           <span>{app.name}</span>
         </a>
         <nav class="site-nav" aria-label="Main">
-          {nav.map((l) => (
-            <a href={l.href} aria-current={path === l.href ? 'page' : undefined}>{l.label}</a>
-          ))}
+          {nav.map((n) => <a href={n.href}>{n.label}</a>)}
         </nav>
+        <a class="header-cta" href={app.cta.href}>{app.cta.label}</a>
       </div>
     </header>
 
