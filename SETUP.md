@@ -60,6 +60,20 @@ The `/waitlist` page posts to the shared waitlist API at `api.shaneracey.com` (r
 
 With `waitlist.app` empty, `/waitlist` just says the waitlist opens soon, and the site builds without contacting the API.
 
+### Seeing where signups come from
+
+Add `?utm_source=` to every link you post, one label per place:
+
+```
+https://appname.shaneracey.com/?utm_source=reddit
+https://appname.shaneracey.com/?utm_source=instagram
+https://appname.shaneracey.com/?utm_source=tiktok
+```
+
+Use lowercase and the same spelling every time (letters, digits, `.`, `-` and `_`, up to 40 characters). The first page a visitor lands on saves the label for that tab (`src/components/SourceTracker.astro`), and the waitlist form sends it with the signup. Untagged visits fall back to the referring site's hostname (for example `google.com`), and direct visits stay blank. Instagram and TikTok often hide the referrer, so tag those links. Each signup's source shows in the `source` column of the CSV export and in the new-signup email.
+
+The privacy policy's Waitlist section already describes this. Keep it if you keep the waitlist.
+
 ## Run it locally
 
 Requires Node 22.12 or newer.

@@ -36,6 +36,19 @@ TODO: List each device permission the App requests (camera, location, photos, he
 
 TODO: Describe each use. Typical examples: providing the App's features, keeping your account signed in, fixing crashes, answering support emails. Say explicitly if data is NOT used for advertising or sold.
 
+## Waitlist
+
+<!-- Keep this section while the site has a waitlist (waitlist.app is set in src/app.config.ts). Delete it if not.
+     It matches the waitlist form's consent box: launch updates and the occasional product research question. -->
+
+If you join the waitlist, we collect your email address, any optional answers you give, your consent and the time you gave it, and a one-way hash of your IP address (used only to block spam; we never store the IP address itself).
+
+We use your email address to send you launch updates and, occasionally, to ask for your input, for example a short survey, a request for feedback, or an invitation to try an early version. Answering is always optional. To stop getting emails, reply to any of them and ask, or write to the address in the Contact section below.
+
+**Where you came from.** Links we share can carry a label, such as `?utm_source=reddit`. When you arrive, the site keeps that label, or else the name of the site that sent you, in your browser's session storage, which belongs to the tab and is cleared when you close it. If you join the waitlist, the label is sent along with your signup, so we can see which places people find the App through. We use no cookies for this, and nothing is sent anywhere unless you sign up.
+
+The waitlist runs on Cloudflare, which stores the signups, and uses Cloudflare Turnstile to check that you're a person ([Cloudflare's privacy policy](https://www.cloudflare.com/privacypolicy/)).
+
 ## Third-party services
 
 The App uses the following third-party services, which may process data as described in their own privacy policies:

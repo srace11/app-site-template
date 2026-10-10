@@ -49,7 +49,7 @@ export const app = {
   cta: {
     label: 'Join the waitlist',
     href: '/waitlist',
-    note: 'Free to join. One email when we launch.',
+    note: 'Free to join. Launch updates, no spam.',
   },
 
   // Waitlist: the app's slug in the waitlist API (api.shaneracey.com, repo srace11/waitlist-api).
