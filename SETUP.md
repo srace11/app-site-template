@@ -133,6 +133,17 @@ shaneracey.com's DNS is hosted on Cloudflare (nameservers `aspen` and `rocky`), 
 
 **If the status stays "Pending"** for more than 15 minutes, check that there is exactly one record for `appname` in **DNS > Records**, that it is proxied, and that no Worker route in **Workers Routes** matches `appname.shaneracey.com/*`.
 
+## Moving to the app's own domain later
+
+Stat Jump moved from `statjump.shaneracey.com` to `statjump.app` this way (see `statjump-site` for the finished result):
+
+1. **Buy the domain in Cloudflare** (same account), so its DNS is already there.
+2. **Waitlist first, if there is one:** follow "Moving an app to a new domain" in `waitlist-api/SETUP.md` (Turnstile hostname, then `origin`, `formerOrigins` and `privacyUrl`). Otherwise signups from the new address are refused.
+3. **This repo:** set `url` in `src/app.config.ts` to the new address, and run `npm run og`. In `wrangler.jsonc`, list the new domain, its `www.`, and the old subdomain under `routes` (all `custom_domain: true`). Keep the old subdomain: links already posted point at it.
+4. **Redirect everything else to the new domain** with a small Worker (`main` in `wrangler.jsonc`, `run_worker_first: true`). `statjump-site/worker/index.js` does this: any other hostname, or plain http, gets a 301 to the same path and query on the new domain.
+5. **Deploy and check:** the new domain serves every page, and the old one 301s to it, keeping `?utm_source=`.
+6. **Update the hub:** the app's `url` in `shaneracey-hub/src/data/apps.json`.
+
 ## Launch checklist for a new app
 
 - [ ] **Copy the template.** On GitHub, open `srace11/app-site-template`, click **Use this template > Create a new repository** and name it `appname-site`. Clone it. (Or from the CLI: `gh repo create appname-site --template srace11/app-site-template --public --clone`.)
